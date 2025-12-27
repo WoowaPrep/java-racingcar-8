@@ -1,7 +1,7 @@
 package racingcar.view;
 
 import java.util.List;
-import java.util.Map;
+import racingcar.domain.Car;
 
 public class OutputView {
 
@@ -16,9 +16,10 @@ public class OutputView {
         System.out.println(RESULT_HEADER);
     }
 
-    public void printRound(Map<String, Integer> positions) {
-        positions.forEach((name, position) ->
-                System.out.println(name + SEPARATOR + POSITION_MARKER.repeat(position))
+    public void printRound(List<Car> cars) {
+        cars.forEach(car ->
+                System.out.println(car.getName() + SEPARATOR +
+                        POSITION_MARKER.repeat(car.getPosition()))
         );
         System.out.println();
     }

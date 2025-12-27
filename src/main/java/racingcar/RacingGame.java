@@ -1,13 +1,11 @@
 package racingcar;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.IntStream;
 import racingcar.domain.Cars;
+import racingcar.domain.MoveCondition;
 import racingcar.domain.Parser;
+import racingcar.domain.condition.RandomMoveCondition;
 import racingcar.domain.Validator;
 import racingcar.view.InputView;
 import racingcar.view.OutputView;
@@ -16,14 +14,16 @@ public class RacingGame {
 
     private final InputView inputView;
     private final OutputView outputView;
+    private final MoveCondition moveCondition;
 
     public RacingGame() {
-        this(new InputView(), new OutputView());
+        this(new InputView(), new OutputView(), new RandomMoveCondition());
     }
 
-    public RacingGame(InputView inputView, OutputView outputView) {
+    public RacingGame(InputView inputView, OutputView outputView, MoveCondition moveCondition) {
         this.inputView = inputView;
         this.outputView = outputView;
+        this.moveCondition = moveCondition;
     }
 
     public void start() {
@@ -31,7 +31,6 @@ public class RacingGame {
         int tryCount = inputView.readTryCount();
 
         List<String> carNames = Parser.parse(carNamesInput);
-
         Validator.validateRaceInput(carNames, tryCount);
 
         Cars cars = new Cars(carNames);
@@ -49,7 +48,7 @@ public class RacingGame {
     }
 
     private void playRound(Cars cars) {
-        cars.move();
-        outputView.printRound(cars.getCarPositions());
+        cars.move(moveCondition);
+        outputView.printRound(cars.getCars());
     }
 }
