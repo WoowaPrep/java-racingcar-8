@@ -1,33 +1,51 @@
 package racingcar.domain;
 
+import static java.util.stream.Collectors.toList;
+
 import camp.nextstep.edu.missionutils.Randoms;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Map.Entry;
 
 public class Cars {
 
-    private static final int randomStartNumber = 0;
-    private static final int randomEndNumber = 9;
-    private final Map<String, Integer> carPosition = new TreeMap<>();
+    private static final int RANDOM_START_NUMBER = 0;
+    private static final int RANDOM_END_NUMBER = 9;
+    private static final int MOVE_THRESHOLD = 4;
+    private final Map<String, Integer> carPositions = new LinkedHashMap<>();
 
-    public Map<String, Integer> randomMove(List<String> carNames) {
+    public Cars(List<String> carNames) {
         initializeCarPositions(carNames);
-        carNames.stream()
-                .filter(car -> Randoms.pickNumberInRange(randomStartNumber, randomEndNumber) >= 4)
-                .forEach(t -> carPosition.put(t, carPosition.get(t) + 1));
-
-        return carPosition;
     }
 
     private void initializeCarPositions(List<String> carNames) {
-        for (String carName : carNames) {
-            carPosition.putIfAbsent(carName, 0);
-        }
+        carNames.forEach(name -> carPositions.put(name, 0));
     }
 
-    public Map<String, Integer> getCarPosition() {
-        return carPosition;
+    public void move() {
+        carPositions.keySet().stream()
+                .filter(car -> shouldMove())
+                .forEach(name -> carPositions.put(name, carPositions.get(name) + 1));
+    }
+
+    private static boolean shouldMove() {
+        return Randoms.pickNumberInRange(RANDOM_START_NUMBER, RANDOM_END_NUMBER) >= MOVE_THRESHOLD;
+    }
+
+    public List<String> findWinners() {
+        int maxPosition = carPositions.values().stream()
+                .max(Integer::compareTo)
+                .orElse(0);
+
+        return carPositions.entrySet().stream()
+                .filter(entry -> entry.getValue() == maxPosition)
+                .map(Entry::getKey)
+                .collect(toList());
+    }
+
+    public Map<String, Integer> getCarPositions() {
+        return Collections.unmodifiableMap(carPositions);
     }
 }

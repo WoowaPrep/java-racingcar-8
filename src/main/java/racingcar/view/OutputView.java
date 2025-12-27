@@ -1,32 +1,29 @@
 package racingcar.view;
 
-import static java.util.stream.Collectors.joining;
-
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 public class OutputView {
 
-    private static final String RESULT_MESSAGE = "실행 결과";
-    private static final String WINNING_MESSAGE = "최종 우승자 : ";
-    private static final String CAR_MOVE_MARKER = "-";
+    private static final String RESULT_HEADER = "실행 결과";
+    private static final String WINNER_PREFIX = "최종 우승자 : ";
+    private static final String POSITION_MARKER = "-";
+    private static final String SEPARATOR = " : ";
     private static final String DELIMITER = ", ";
-    private static final String IS = " : ";
 
-    public void printRound(Map<String, Integer> moveCountByCar) {
-        for (Entry<String, Integer> stringIntegerEntry : moveCountByCar.entrySet()) {
-            System.out.println(stringIntegerEntry.getKey() + IS +
-                    CAR_MOVE_MARKER.repeat(stringIntegerEntry.getValue()));
-        }
+    public void printRaceStart() {
+        System.out.println();
+        System.out.println(RESULT_HEADER);
+    }
+
+    public void printRound(Map<String, Integer> positions) {
+        positions.forEach((name, position) ->
+                System.out.println(name + SEPARATOR + POSITION_MARKER.repeat(position))
+        );
         System.out.println();
     }
 
-    public void printResultHeader() {
-        System.out.println(RESULT_MESSAGE);
-    }
-
-    public void printWinningCars(List<String> cars) {
-        System.out.print(WINNING_MESSAGE + cars.stream().collect(joining(DELIMITER)));
+    public void printWinners(List<String> winners) {
+        System.out.println(WINNER_PREFIX + String.join(DELIMITER, winners));
     }
 }

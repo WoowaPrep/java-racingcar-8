@@ -2,7 +2,6 @@ package racingcar;
 
 import static java.util.stream.Collectors.toList;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,50 +14,42 @@ import racingcar.view.OutputView;
 
 public class RacingGame {
 
-    private InputView inputView;
-    private OutputView outputView;
-    private Cars cars;
+    private final InputView inputView;
+    private final OutputView outputView;
 
     public RacingGame() {
-        this(new InputView(), new OutputView(), new Cars());
+        this(new InputView(), new OutputView());
     }
 
-    public RacingGame(InputView inputView, OutputView outputView, Cars cars) {
+    public RacingGame(InputView inputView, OutputView outputView) {
         this.inputView = inputView;
         this.outputView = outputView;
-        this.cars = cars;
     }
 
     public void start() {
-        String Cars = inputView.readCars();
+        String carNamesInput = inputView.readCars();
         int tryCount = inputView.readTryCount();
 
-        List<String> carNames = Parser.parse(Cars);
-        Validator.validateNameLength(carNames);
-        outputView.printResultHeader();
-        List<String> winningCars = randomMove(carNames, tryCount);
+        List<String> carNames = Parser.parse(carNamesInput);
 
-        outputView.printWinningCars(winningCars);
+        Validator.validateRaceInput(carNames, tryCount);
+
+        Cars cars = new Cars(carNames);
+        List<String> winners = race(cars, tryCount);
+        outputView.printWinners(winners);
     }
 
-    private List<String> randomMove(List<String> carNames, int tryCount) {
+    private List<String> race(Cars cars, int tryCount) {
+        outputView.printRaceStart();
+
         IntStream.range(0, tryCount)
-                .forEach(i -> {
-                    Map<String, Integer> moveCountByCar = cars.randomMove(carNames);
-                    outputView.printRound(moveCountByCar);
-                });
+                .forEach(i -> playRound(cars));
 
-        return winningCars(cars.getCarPosition());
+        return cars.findWinners();
     }
 
-    private static List<String> winningCars(Map<String, Integer> moveCountByCar) {
-        int maxMove = moveCountByCar.values().stream()
-                .max(Integer::compareTo)
-                .orElse(0);
-
-        return moveCountByCar.entrySet().stream()
-                .filter(entry -> entry.getValue() == maxMove)
-                .map(Entry::getKey)
-                .collect(toList());
+    private void playRound(Cars cars) {
+        cars.move();
+        outputView.printRound(cars.getCarPositions());
     }
 }
